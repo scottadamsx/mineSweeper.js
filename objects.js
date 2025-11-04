@@ -21,14 +21,23 @@ export class Cell {
             // place bombs 
             grid.placeBombs()
 
-            // identify markers
+            // identify and set markers
             grid.identifyMarkers()
+
+            // show initial deadzone outline
+            grid.showDeadzoneOutline()
         } 
 
         if (this.state == "empty") {
-            this.state = "clicked"
-            console.log(this.x,this.y," cell clicked!")
-            this.display.style.backgroundColor = "black"
+            this.state = "dead"
+            let surroundingCells = grid.getAllSurroundingCells(this)
+            surroundingCells.forEach(cell => {
+                if (cell.state == "empty") {
+                    cell.click(grid)
+                }
+            })
+            this.display.style.backgroundColor = "white"
+            grid.showDeadzoneOutline()
         } else if (this.state == "bomb") {
             console.log(this.x,this.y,"BOOM!")
             this.display.style.backgroundColor = "red"
@@ -60,14 +69,22 @@ export class Grid {
         })
         return emptyCells
     }
-    // this method works as expected
-    getState() {
-        return this.state
+    // function to grab every 'dead' cell
+    getDeadZone() {
+        let deadCells = []
+        this.cells.forEach(cell => {
+            if (cell.state == "dead") {
+                deadCells.push(cell)
+            }
+        })
+        return deadCells
     }
     // this method works as expected
     changeState() {
         if (this.state == "initial") {
             this.state = "inGame"
+        } else if (this.state == "inGame") {
+            this.state = "gameOver"
         }
     }
     // this method works as expected
@@ -151,26 +168,40 @@ export class Grid {
         let max = Math.floor(totalCells * 0.40)
         let min = 12
         let deadZoneSize = Math.floor(Math.random() * (max - min + 1)) + min
-        console.log("dead zone size: ",deadZoneSize)
+        console.log("dead zone size: ", deadZoneSize)
         let deadCells = 1
         let currentCell = cell
         
         while (deadCells <= deadZoneSize) {
-            let surroundingCells = this.getSurroundingCells(currentCell)
+            let surroundingCells = this.getAllSurroundingCells(currentCell)
             surroundingCells.forEach(cell => {
                 if (cell.state == "empty") {
                     cell.state = "dead"
                 cell.display.style.backgroundColor = "white"
                 deadCells ++
                 }
-                
             })
         currentCell = surroundingCells[Math.floor(Math.random() * surroundingCells.length)]
         }
     }
     placeBombs() {
         let emptyCells = this.getEmptyCells()
-        console.log(emptyCells)
+        console.log("empties before removing outline",emptyCells)
+        let deadCells = this.getDeadZone()
+
+    
+        for (let i = 0; i < deadCells.length; i++){
+            let cell = deadCells[i]
+            let surroundingCells = this.getAllSurroundingCells(cell)
+            surroundingCells.forEach(cell => {
+                if (cell.state == "empty") {
+                    emptyCells.splice(emptyCells.indexOf(cell),1)
+                 // deletes it from empty cell if one of their surrounding cells is dead
+                }
+            })
+        }
+        console.log("empty cells after outline removed", emptyCells)
+
         // change these values to change range of possible bombs
         let min = Math.floor(emptyCells.length * 0.30)
         let max = Math.floor(emptyCells.length * 0.60)
@@ -178,6 +209,7 @@ export class Grid {
         let bombsToPlace = Math.floor(Math.random() * (max - min + 1)) + min
         let bombsPlaced = 0
         console.log("bombs to place",bombsToPlace)
+
 
         // loop until all bombs are placed
         while (bombsPlaced < bombsToPlace) {
@@ -187,13 +219,9 @@ export class Grid {
             bombsPlaced++;
         }
 
-        emptyCells = this.getEmptyCells()
-        console.log("markerCells: ",emptyCells)
-
     }
     identifyMarkers() {
         let emptyCells = this.getEmptyCells()
-        console.log("markerCells: ",emptyCells)
 
         emptyCells.forEach(cell => {
             let surroundingCells = this.getAllSurroundingCells(cell)
@@ -207,6 +235,18 @@ export class Grid {
                 cell.state = "marker"
                 cell.marker = bombsTouchingCell
             }
+        })
+    }
+    showDeadzoneOutline() {
+        let deadZone = this.getDeadZone()
+        deadZone.forEach(cell => {
+            // get the surrounding cells of every dead cell
+            let surroundingCells = this.getSurroundingCells(cell)
+            surroundingCells.forEach(cell => {
+                if (cell.state != "dead") {
+                    cell.click(this)
+                }
+            })
         })
     }
     
