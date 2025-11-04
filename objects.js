@@ -165,7 +165,7 @@ export class Grid {
     createDeadZone(cell) {
         // we want the deadzone to be a minimum of like 12 cells but a maximum of 40%
         let totalCells = this.width * this.height
-        let max = Math.floor(totalCells * 0.40)
+        let max = Math.floor(totalCells * 0.20)
         let min = 12
         let deadZoneSize = Math.floor(Math.random() * (max - min + 1)) + min
         console.log("dead zone size: ", deadZoneSize)
@@ -203,8 +203,8 @@ export class Grid {
         console.log("empty cells after outline removed", emptyCells)
 
         // change these values to change range of possible bombs
-        let min = Math.floor(emptyCells.length * 0.30)
-        let max = Math.floor(emptyCells.length * 0.60)
+        let min = Math.floor(emptyCells.length * 0.10)
+        let max = Math.floor(emptyCells.length * 0.30)
 
         let bombsToPlace = Math.floor(Math.random() * (max - min + 1)) + min
         let bombsPlaced = 0
