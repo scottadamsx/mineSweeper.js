@@ -241,7 +241,7 @@ export class Grid {
         let deadZone = this.getDeadZone()
         deadZone.forEach(cell => {
             // get the surrounding cells of every dead cell
-            let surroundingCells = this.getSurroundingCells(cell)
+            let surroundingCells = this.getAllSurroundingCells(cell)
             surroundingCells.forEach(cell => {
                 if (cell.state != "dead") {
                     cell.click(this)
@@ -249,5 +249,6 @@ export class Grid {
             })
         })
     }
+    
     
 }
