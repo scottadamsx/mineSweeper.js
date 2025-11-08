@@ -44,8 +44,7 @@ export class Cell {
         } else if (this.state == "bomb") {
             console.log(this.x,this.y,"BOOM!")
             this.display.style.backgroundColor = "red"
-            document.getElementById("winBox").textContent = "You Lose!"
-            grid.removeClicks()
+            grid.state = "lose"
         } else if (this.state == "marker") {
             this.display.style.backgroundColor = "white"
             this.hidden = false
@@ -92,9 +91,7 @@ export class Grid {
     changeState() {
         if (this.state == "initial") {
             this.state = "inGame"
-        } else if (this.state == "inGame") {
-            this.state = "gameOver"
-        }
+        } 
     }
     // this method works as expected
     getCell(x,y) {
@@ -262,6 +259,7 @@ export class Grid {
     checkForWin() {
         let clickableCells = []
         let win = true
+    
         // loops through all cells and grabs any cell that isnt a bomb
         this.cells.forEach(cell => {
             if (cell.state != "bomb") {

@@ -3,11 +3,12 @@ import { Cell, Grid } from "./objects.js"
 
 
 
-// create pointers to the play btn and the form
+// create pointers for all global elements
 const playBtn = document.getElementById("play")
 const form = document.querySelector("form")
-const grid = new Grid()
+let grid = new Grid()
 const winBox = document.getElementById("winBox")
+const div = document.getElementById("grid")
 
 // adds functionality to the play button that will remove it and show form in its place
 playBtn.addEventListener("click", () => {
@@ -15,11 +16,24 @@ playBtn.addEventListener("click", () => {
     form.style.display = "block"
 })
 
+function addPlayAgainBtn() {
+    // add play again button 
+                    let playAgainBtn = document.createElement("button")
+                    playAgainBtn.textContent = "Play again?"
+                    playAgainBtn.addEventListener("click", evt => {
+                        div.innerHTML = ""
+                        grid = new Grid()
+                        form.style.display = "block"
+                        evt.target.remove()
+                    })
+                    div.appendChild(playAgainBtn)
 
+}
 
 function generateGrid(width, height) {
+    winBox.textContent = ""
     // grabs grid div from html
-    const div = document.getElementById("grid")
+    
 
     // creates table element
     const display = document.createElement("table")
@@ -42,9 +56,17 @@ function generateGrid(width, height) {
             td.addEventListener("click", evt => {
                 let win = cell.click(grid)
                 console.log(grid)
+                // logic for if you win
                 if (win == true) {
+                    // display winning message to user
                     winBox.textContent = "you win!"
+                    // add play again button 
+                    addPlayAgainBtn()
                     grid.removeClicks()
+                // logic if you lose
+                } else if (grid.state == "lose") {
+                    winBox.textContent = "You Lose!"
+                    addPlayAgainBtn()
                 }
             })
             td.id = `${j}${i}`
@@ -61,6 +83,7 @@ form.addEventListener("submit", evt => {
     const width = parseInt(document.getElementById("width").value)
     const height = parseInt(document.getElementById("height").value)
     generateGrid(width, height)
+
     playBtn.remove()
-    form.remove()
+    form.style.display = "none"
 })
